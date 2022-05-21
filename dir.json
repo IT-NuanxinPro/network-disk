@@ -1,0 +1,64 @@
+{
+  "name": "D:\\finishWeb\\暖心网盘\\assets",
+  "path": "D:\\finishWeb\\暖心网盘\\assets",
+  "dir": [
+    {
+      "name": "node.Js",
+      "path": "D:\\finishWeb\\暖心网盘\\assets/node.Js",
+      "dir": [
+        "1.md",
+        "a.docx",
+        "b.xlsx",
+        "c.pdf",
+        "暖心JS笔记.pdf",
+        "暖心NodeJs笔记.pdf",
+        {
+          "name": "暖心笔记",
+          "path": "D:\\finishWeb\\暖心网盘\\assets/node.Js/暖心笔记",
+          "dir": [
+            "MySQL.md",
+            "MySQL练习题.docx",
+            "Node.js.md",
+            {
+              "name": "Todo-list",
+              "path": "D:\\finishWeb\\暖心网盘\\assets/node.Js/暖心笔记/Todo-list",
+              "dir": [
+                "package.json",
+                {
+                  "name": "public",
+                  "path": "D:\\finishWeb\\暖心网盘\\assets/node.Js/暖心笔记/Todo-list/public",
+                  "dir": [
+                    "index.html"
+                  ]
+                },
+                "Todo-list优化版本.js"
+              ]
+            },
+            "web期末大作业.docx",
+            "入学教育安排.xlsx"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "暖心学习资料",
+      "path": "D:\\finishWeb\\暖心网盘\\assets/暖心学习资料",
+      "dir": [
+        {
+          "name": "暖心1",
+          "path": "D:\\finishWeb\\暖心网盘\\assets/暖心学习资料/暖心1",
+          "dir": [
+            "web期末大作业.docx"
+          ]
+        },
+        {
+          "name": "暖心2",
+          "path": "D:\\finishWeb\\暖心网盘\\assets/暖心学习资料/暖心2",
+          "dir": [
+            "中软国际YYDS.txt"
+          ]
+        }
+      ]
+    }
+  ]
+}

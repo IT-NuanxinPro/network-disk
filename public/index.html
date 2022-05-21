@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+	<meta charset = "UTF-8">
+	<meta name = "viewport" content = "width=device-width,initial-scale=1.0">
+	<title>暖心网盘</title>
+	<link rel = "stylesheet" href = "./css/style.css">
+	<script charset="UTF-8" src="./xlsx.full.min.js"></script>
+	<script src="./pdf.min.js"></script>
+	<script src="./pdf.worker.min.js"></script>
+	<script src = "js/jQuery.js"></script>
+</head>
+<body>
+<!--头部区域-->
+  <div class="wrapper-top">
+	  <div class="logo">
+		  <img src = "./images/logo.png" width="35" alt = "">
+	  </div>
+	  <span>暖心网盘</span>
+	  <div class="user">
+		  <div class="user-info">
+			  <img src = "./images/avatar.png"  alt = "">
+			  <!--二级菜单-->
+			  <div class="user-menu">
+				  <ul class="item-lists">
+					  <li class="item list1">
+							  <img src = "./images/avatar.png" alt = "">
+							  <span>Devil 暖心</span>
+					  </li>
+					  <li class="item">个人主页</li>
+					  <li class="item">登录设备管理</li>
+					  <li class="item">关于</li>
+					  <li class="item">退出登录</li>
+				  </ul>
+			  </div>
+		  </div>
+		  <span>Devil暖心</span>
+		  <i class="svip-icon"></i>
+		  <div class="open-svip">开通超级会员</div>
+		  <!--搜索图标-->
+		  <div class="search">
+			  <img src = "./images/搜索.svg" alt = "">
+		  </div>
+		  <!--点击显示搜索框-->
+		  <div class = "search_input ">
+			  <img src = "./images/search_white%20.svg" alt = "">
+			  <input type = "text" placeholder="搜索前端课程名称">
+			  <img src = "./images/叉号.svg" class="ch" alt = "">
+			  <div class="search_recommended">
+				  <ul class = "box_list" style="list-style: none">
+					  <li>
+						  <a href = "#">Node.js</a>
+					  </li>
+					  <li>
+						  <a href = "#">Vue.js</a>
+					  </li>
+					  <li>
+						  <a href = "#">Javascript</a>
+					  </li>
+					  <li>
+						  <a href = "#">TypeScript</a>
+					  </li>
+					  <li>
+						  <a href = "#">MySQL</a>
+					  </li>
+				
+				  </ul>
+			  </div>
+		  </div>
+		  <!--语言选择-->
+		  <div class="language">
+			  <ul>
+				  <li>
+					  <a href = "#">简体中文
+					    <img src="images/下箭头.svg" style="width: 10px;height: 8px">
+					  </a>
+					  <ul class="two">
+						  <li>简体中文</li>
+						  <li>繁体中文</li>
+						  <li>English</li>
+					  </ul>
+				  </li>
+			  </ul>
+		  </div>
+	  </div>
+  </div>
+
+  <div class="wrapper-con">
+	  <!--目录区域-->
+	  <div class="con-left">
+		  <div>
+			  <img src = "./images/文件夹.svg" alt = "">
+			  <span>我的文件</span>
+		  </div>
+	  </div>
+	  <!--内容区域-->
+	  <div class="con-right"></div>
+  </div>
+</body>
+</html>
+<script>
+	$(".user-info img").hover(() => {
+		$(".user-menu").stop(true).slideDown(300)
+	},() => {
+		$(".user-menu").hover(() => {
+			$(".user-menu").stop(true).slideDown(300)
+		},() => {
+			$(".user-menu").stop(true).slideUp()
+		});
+		$(".user-menu").stop(true).slideUp(300)
+	})
+	
+	//点击搜索图标 弹出搜索框
+	$(".user .search").click(function () {
+		$(".user .search_input").addClass("search_active");
+	});
+	//点击搜索框叉号 关闭搜索框
+	$(".user .search_input .ch").click(function () {
+		$(".user .search_input").removeClass("search_active");
+	});
+	
+	$(".language li").click(function (){
+		$(this).children(".two").slideToggle();
+	})
+	
+	fetch("http://localhost:3000/dir")
+			.then(resp => resp.json())
+			.then(data => {
+				appendTag(document.querySelector(".con-left"),data.dir,"menus",data.path) //添加文件目录
+			})
+
+// 添加标签
+	let obj = {};
+	function appendTag(parentNode,dir,name,basePath){
+		const temp = name.split("_")[1];
+		const ul = document.createElement("ul")
+		ul.setAttribute("class",name)
+		if(obj[temp]){
+			const  arr = document.getElementsByClassName(name);
+			for( let i = 0; i < arr.length; i++ ){
+				if(arr[i]!=null){
+					arr[i].parentNode.removeChild(arr[i]); //删除原来的标签
+				}
+			}
+			obj[temp] = false; //重置
+			return
+		}
+		
+		dir.forEach((item,index) => {
+			const li = document.createElement("li")
+			li.id = "i_"+index
+			
+			//判断是否是文件夹
+			if(typeof item === "string"){
+				obj[temp] = true;
+				li.innerHTML = item;
+				li.style = "list-style-image:url(./images/文件.svg);margin-left:25px;"
+				li.setAttribute("data-path",basePath+"/"+item)
+				li.addEventListener("click",e => {
+					e.preventDefault() // 阻止默认事件
+					e.stopPropagation() // 阻止冒泡
+					const suffix = item.slice(item.lastIndexOf(".")+1)
+					if(suffix === "xls" || suffix === "xlsx"){
+						getExcel(e.currentTarget.dataset.path)
+					}else if(suffix === "pdf"){
+						const index = e.currentTarget.dataset.path.lastIndexOf("assets");
+						const filepath = e.currentTarget.dataset.path.slice(index+6);
+						getPdf(filepath);
+					}else{
+						getFile(e.currentTarget.dataset.path)
+					}
+				},false)
+			}else{
+				// 文件夹
+				obj[temp] = true;
+				li.innerHTML = item.name
+				obj[item.name] = false;
+				li.style = "list-style-image:url(./images/文件夹.svg);"
+				li.addEventListener("click",e => {
+					e.preventDefault()
+					e.stopPropagation()
+			  
+					const id = e.currentTarget.id  //获取当前点击的文件夹的id
+					const index = parseInt(id.slice(2),10) //获取当前点击的文件夹的索引
+					const son_dir = dir[index]
+					appendTag(li,son_dir.dir,"menus_"+son_dir.name,son_dir.path)
+				},false)
+			}
+			ul.appendChild(li)
+			
+		})
+		parentNode.appendChild(ul)
+	}
+	
+	// 获取文件
+	function getFile(filename){
+		fetch("http://localhost:3000/getfile?path="+filename)
+				.then(res => res.text())
+				.then(res => {
+					// console.log(res)
+					const old = document.querySelector(".con-right div")
+					if(old){
+						document.querySelector(".con-right").removeChild(old)
+					}
+					const pre = document.createElement("div")
+					pre.innerHTML = `<pre>${res}</pre>`
+					document.querySelector(".con-right").appendChild(pre)
+				})
+	}
+	
+	// 获取excel
+	function getExcel(filename){
+		fetch("http://localhost:3000/getfile?path="+filename)
+				.then(res => res.arrayBuffer())
+				.then(res => {
+					const data = new Uint8Array(res);
+					const workbook = XLSX.read(data,{type:"array"})
+					// console.log(workbook)
+					const htmlstr = XLSX.write(workbook,{sheet:workbook.SheetNames[0], type:'string',bookType:'html'});
+					// console.log(htmlstr.toString())
+					const old = document.querySelector(".con-right div")
+					if(old){
+						document.querySelector(".con-right").removeChild(old)
+					}
+					const div = document.createElement("div")
+					div.innerHTML = htmlstr
+					document.querySelector(".con-right").appendChild(div)
+					document.querySelector(".con-right table").border = 1
+					document.querySelector(".con-right table").style = "border-spacing:0px;"
+				})
+	}
+	
+	// 获取pdf
+	function getPdf(filename){
+		const old = document.querySelector(".con-right div")
+		if(old){
+			document.querySelector(".con-right").removeChild(old)
+		}
+		const div = document.createElement("div")
+		div.innerHTML = `
+        <div>
+            <button id="prev">Previous</button>
+            <button id="next">Next</button>
+            &nbsp; &nbsp;
+            <span> Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+        </div>
+    `
+		document.querySelector(".con-right").appendChild(div)
+		
+		const url = `${window.location.href}files${filename}`;
+		//
+		// The workerSrc property shall be specified.
+		//
+		pdfjsLib.GlobalWorkerOptions.workerSrc ='./pdf.worker.min.js';
+		
+		
+		//
+		// Asynchronous download PDF
+		//
+		
+		const canvas = document.createElement("canvas");
+		div.appendChild(canvas)
+		canvas.id = "the-canvas"
+		canvas.style = "border: 1px solid black; direction: ltr;"
+		var pdfDoc = null,
+				pageNum = 1,
+				pageRendering = false,
+				pageNumPending = null,
+				scale = 1.5,
+				ctx = canvas.getContext('2d');
+		
+		
+		function renderPage(num) {
+			pageRendering = true;
+			// Using promise to fetch the page
+			pdfDoc.getPage(num).then(function(page) {
+				var viewport = page.getViewport({ scale: scale, });
+				// Support HiDPI-screens.
+				var outputScale = window.devicePixelRatio || 1;
+				
+				canvas.width = Math.floor(viewport.width * outputScale);
+				canvas.height = Math.floor(viewport.height * outputScale);
+				canvas.style.width = Math.floor(viewport.width) + "px";
+				canvas.style.height =  Math.floor(viewport.height) + "px";
+				
+				var transform = outputScale !== 1
+						? [outputScale, 0, 0, outputScale, 0, 0]
+						: null;
+				
+				// Render PDF page into canvas context
+				var renderContext = {
+					canvasContext: ctx,
+					transform: transform,
+					viewport: viewport,
+				};
+				var renderTask = page.render(renderContext);
+				
+				// Wait for rendering to finish
+				renderTask.promise.then(function () {
+					pageRendering = false;
+					if (pageNumPending !== null) {
+						// New page rendering is pending
+						renderPage(pageNumPending);
+						pageNumPending = null;
+					}
+				});
+			});
+			
+			// Update page counters
+			document.getElementById('page_num').textContent = num;
+		}
+		
+		
+		function queueRenderPage(num) {
+			if (pageRendering) {
+				pageNumPending = num;
+			} else {
+				renderPage(num);
+			}
+		}
+		
+		// Get document, or fetch it asynchronously if not cached.
+		function onPrevPage() {
+			if (pageNum <= 1) {
+				return;
+			}
+			pageNum--;
+			queueRenderPage(pageNum);
+		}
+		document.getElementById('prev').addEventListener('click', onPrevPage);
+		
+		
+		function onNextPage() {
+			if (pageNum >= pdfDoc.numPages) {
+				return;
+			}
+			pageNum++;
+			queueRenderPage(pageNum);
+		}
+		document.getElementById('next').addEventListener('click', onNextPage);
+		
+		var loadingTask = pdfjsLib.getDocument(url);
+		loadingTask.promise.then(function(pdfDoc_) {
+			pdfDoc = pdfDoc_;
+			document.getElementById('page_count').textContent = pdfDoc.numPages;
+			
+			// Initial/first page rendering
+			renderPage(pageNum);
+		});
+		
+	}
+</script>
+
+

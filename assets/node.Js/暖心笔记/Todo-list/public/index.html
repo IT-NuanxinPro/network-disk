@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+	<meta charset = "UTF-8">
+	<meta name = "viewport" content = "width=device-width,initial-scale=1.0">
+	<title>=todo-list</title>
+</head>
+<body>
+   <h1>Todo List</h1>
+   <ul></ul>
+   <form action = "/add" method="post">
+	   <input type = "text" placeholder="请输入" name = "item">
+	   <input type = "submit" value="上传" >
+   </form>
+</body>
+</html>
+<script>
+  fetch("http://localhost:3000/getData").then(res=>{
+		return res.text();
+  }).then(data=>{
+		if(data ==="") return;
+		
+		const arr = data.split(",");
+		const ul = document.querySelector("ul");
+		arr.forEach(item=>{
+			const li = document.createElement("li");
+			li.innerText = item;
+			ul.appendChild(li);
+		})
+  })
+</script>
